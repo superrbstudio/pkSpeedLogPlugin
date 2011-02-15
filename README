@@ -1,0 +1,10 @@
+This plugin logs the elapsed time for each Symfony request and provides simple analytics via the speedLog/averages action, which also offers CSV downloads of the raw data. It IS NOT a substitute for Google Analytics but it gives you data about Symfony performance you can't get with Google Analytics. It IS NOT a good idea to leave it enabled forever in production unless you use a cron job of some sort to periodically purge older data from the speed_log table.
+
+To enable this plugin you must edit your frontend controller to call pkSpeedLog::register() and require the correct class file since the autoloader isn't yet available at this point:
+
+require_once(dirname(__FILE__).'/../config/ProjectConfiguration.class.php');
+require_once(dirname(__FILE__).'/../plugins/pkSpeedLogPlugin/lib/pkSpeedLog.class.php');
+pkSpeedLog::register();
+$configuration = ProjectConfiguration::getApplicationConfiguration('frontend', 'dev', true);
+
+The analytics action is locked down to admins by security.yml. Link to speedLog/averages to provide admins with access to it.
