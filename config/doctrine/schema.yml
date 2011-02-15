@@ -1,0 +1,15 @@
+SpeedLog:
+  options:
+    symfony:
+      form: false
+      filter: false
+  columns:
+    created_at:
+      type: timestamp
+    request:
+      type: string
+      length: 255
+    elapsed:
+      # Seconds
+      type: float
+    
