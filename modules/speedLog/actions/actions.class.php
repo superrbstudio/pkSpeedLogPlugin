@@ -20,7 +20,7 @@ class speedLogActions extends sfActions
   
   public function executeCsv(sfWebRequest $request)
   {
-    $q = Doctrine::getTable('SpeedLog')->createQuery('sl')->select('sl.created_at as created_at, sl.request as request, sl.elapsed as elapsed')->orderBy('sl.created_at');
+    $q = Doctrine::getTable('SpeedLog')->createQuery('sl')->select('sl.created_at as created_at, sl.elapsed as elapsed, sl.request as request')->orderBy('sl.created_at');
     $hours = $request->getParameter('hours');
     if ($hours)
     {
