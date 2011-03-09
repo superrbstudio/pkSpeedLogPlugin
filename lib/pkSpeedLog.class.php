@@ -16,7 +16,6 @@ class pkSpeedLog
     $speedLog->elapsed = $elapsed;
     $speedLog->request = $_SERVER['REQUEST_URI'];
     $speedLog->save();
-    error_log("LOGGED");
   }
 }
 
