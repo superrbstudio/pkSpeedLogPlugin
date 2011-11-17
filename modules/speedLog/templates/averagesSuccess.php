@@ -13,24 +13,55 @@
   {
     margin-bottom: 20px;
   }
+  .speed_log .edit-speed-monitors
+  {
+    margin-right: 20px;
+  }
 </style>
 <div class="speed_log">
-  <h3>Averages and Downloads</h3>
+  <h3>Overall Averages</h3>
   <table class="speed_log_averages">
     <tr>
-      <th>Last 24 Hours</th><th>Last 7 Days</th><th>Forever</th>
+      <th>Last 24 Hours</th><th>Last 7 Days</th><th>Last Month</th>
     </tr>
     <tr>
       <th><?php echo sprintf("%.02f", $last24) ?></th>
       <th><?php echo sprintf("%.02f", $lastWeek) ?></th>
-      <th><?php echo sprintf("%.02f", $forever) ?></th>
+      <th><?php echo sprintf("%.02f", $lastMonth) ?></th>
     </tr>
-    <tr>
-      <th><?php echo link_to('CSV', 'speedLog/csv?hours=24') ?></th>
-      <th><?php echo link_to('CSV', 'speedLog/csv?hours=' . 24 * 7) ?></th>
-      <th><?php echo link_to('CSV', 'speedLog/csv') ?></th>
-    </tr>
+    <?php // Results are not practical to consume anymore ?>
+    <?php if (0): ?>
+      <tr>
+        <th><?php echo link_to('CSV', 'speedLog/csv?hours=24') ?></th>
+        <th><?php echo link_to('CSV', 'speedLog/csv?hours=' . 24 * 7) ?></th>
+        <th><?php echo link_to('CSV', 'speedLog/csv?months=1') ?></th>
+      </tr>
+    <?php endif ?>
   </table>
+
+  <?php echo link_to('<span class="icon"></span>Edit', 'speed_monitor', array(), array('class' => 'icon a-edit a-ui a-btn big edit-speed-monitors')) ?></h3>
+  <h3>Speed Monitors</h3>
+  <table class="speed_log_rules">
+    <tr>
+      <th>Rule</th><th>Metric</th><th>Last 24 Hours</th><th>Last 7 Days</th><th>Last Month</th>
+    </tr>
+    <?php foreach ($ruleResults as $rule => $ruleResults): ?>
+      <tr>
+        <th rowspan="2"><?php echo $rule ?></th>
+        <th>Average</th>
+        <?php foreach ($ruleResults as $periodResult): ?>
+          <th><?php echo sprintf("%.02f", $periodResult[0]['a']) ?></th>
+        <?php endforeach ?>
+      </tr>
+      <tr>
+        <th>Max</th>
+        <?php foreach ($ruleResults as $periodResult): ?>
+          <th><?php echo sprintf("%.02f", $periodResult[0]['m']) ?></th>
+        <?php endforeach ?>
+      </tr>
+    <?php endforeach ?>
+  </table>
+  
   <h3>50 Slowest Pages Today</h3>
   <table class="speed_log_slowest">
     <tr>

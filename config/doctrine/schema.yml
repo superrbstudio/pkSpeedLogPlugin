@@ -12,4 +12,9 @@ SpeedLog:
     elapsed:
       # Seconds
       type: float
-    
+
+SpeedMonitor:
+  columns:
+    rule:
+      type: string
+      length: 255
