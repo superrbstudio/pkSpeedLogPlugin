@@ -23,11 +23,26 @@
   <table class="speed_log_averages">
     <tr>
       <th>Last 24 Hours</th><th>Last 7 Days</th><th>Last Month</th>
+      <th>
+        <form action="<?php echo url_for('speedLog/averages') ?>" method="POST">
+          <?php if ($form->hasErrors()): ?>
+            <p>Check your dates.</p>
+          <?php endif ?>
+          <?php echo $form->renderHiddenFields() ?>
+          <?php echo $form['range']->render() ?>
+          <input type="submit" value="Update" />
+        </form>
+      </th>
     </tr>
     <tr>
       <th><?php echo sprintf("%.02f", $last24) ?></th>
       <th><?php echo sprintf("%.02f", $lastWeek) ?></th>
       <th><?php echo sprintf("%.02f", $lastMonth) ?></th>
+      <?php if (isset($lastCustom)): ?>
+        <th><?php echo sprintf("%.02f", $lastCustom) ?></th>
+      <?php else: ?>
+        <th></th>
+      <?php endif ?>
     </tr>
     <?php // Results are not practical to consume anymore ?>
     <?php if (0): ?>
@@ -44,6 +59,9 @@
   <table class="speed_log_rules">
     <tr>
       <th>Rule</th><th>Metric</th><th>Last 24 Hours</th><th>Last 7 Days</th><th>Last Month</th>
+      <?php if (isset($lastCustom)): ?>
+        <th><?php echo $fromDate ?> &mdash; <?php echo $toDate ?></th>
+      <?php endif ?>
     </tr>
     <?php foreach ($ruleResults as $rule => $ruleResults): ?>
       <tr>

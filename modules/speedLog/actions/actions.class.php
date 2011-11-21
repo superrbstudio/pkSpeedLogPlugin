@@ -4,7 +4,34 @@ class speedLogActions extends sfActions
 {
   public function executeAverages(sfWebRequest $request)
   {
+    $fromDate = null;
+    $toDate = null;
+    $form = new BaseForm();
+    $form->setWidget('range', new sfWidgetFormDateRange(array(
+      'from_date' => new sfWidgetFormDate(),
+      'to_date'   => new sfWidgetFormDate(),
+    )));
+    $form->setValidator('range', new sfValidatorDateRange(array(
+      'from_date' => new sfValidatorDate(array('required' => false)),
+      'to_date' => new sfValidatorDate(array('required' => false)),
+      'required' => false
+    )));
+    $form->getWidgetSchema()->setNameFormat('range[%s]');
     $foreverQ = Doctrine::getTable('SpeedLog')->createQuery('sl')->select('avg(sl.elapsed) as a');
+    if ($request->hasParameter('range'))
+    {
+      $form->bind($request->getParameter('range'));
+      if ($form->isValid())
+      {
+        $range = $form->getValue('range');
+        $fromDate = $range['from'];
+        $toDate = $range['to'];
+        $customQ = clone $foreverQ;
+        $customQ->where('sl.created_at >= ? AND sl.created_at <= ?', array($fromDate, $toDate));
+        $this->lastCustom = $customQ->execute(array(), doctrine::HYDRATE_ARRAY);
+        $this->lastCustom = $this->lastCustom[0]['a'];
+      }
+    }
     $last24Q = clone $foreverQ;
     $last24Q->where('sl.created_at >= NOW() - INTERVAL 1 DAY');
     $lastWeekQ = clone $foreverQ;
@@ -22,14 +49,28 @@ class speedLogActions extends sfActions
     $rules = $sql->queryScalar('SELECT rule FROM speed_monitor ORDER BY rule ASC');
     $this->ruleResults = array();
     $this->intervals = array('Last 24 Hours' => 'INTERVAL 1 DAY', 'Last 7 Days' => 'INTERVAL 1 WEEK', 'Last Month' => 'INTERVAL 1 MONTH');
+    if (isset($fromDate))
+    {
+      $this->intervals['Custom'] = 'Custom';
+      $this->fromDate = $fromDate;
+      $this->toDate = $toDate;
+    }
     foreach ($rules as $rule)
     {
       foreach ($this->intervals as $label => $sql)
       {
-        $this->ruleResults[$rule][$label] =  Doctrine::getTable('SpeedLog')->createQuery('sl')->select('avg(sl.elapsed) as a, max(sl.elapsed) as m, count(sl.id) as c')->where('sl.request LIKE ? AND sl.created_at >= NOW() - ' . $sql, array(str_replace(array('*', '?'), array('%', '_'), $rule)))->execute(array(), Doctrine::HYDRATE_ARRAY);
+        if ($sql === 'Custom')
+        {
+          $this->ruleResults[$rule][$label] =  Doctrine::getTable('SpeedLog')->createQuery('sl')->select('avg(sl.elapsed) as a, max(sl.elapsed) as m, count(sl.id) as c')->where('sl.request LIKE ? AND sl.created_at >= ? AND sl.created_at <= ?', array(str_replace(array('*', '?'), array('%', '_'), $rule), $fromDate, $toDate))->execute(array(), Doctrine::HYDRATE_ARRAY);
+        }
+        else
+        {
+          $this->ruleResults[$rule][$label] =  Doctrine::getTable('SpeedLog')->createQuery('sl')->select('avg(sl.elapsed) as a, max(sl.elapsed) as m, count(sl.id) as c')->where('sl.request LIKE ? AND sl.created_at >= NOW() - ' . $sql, array(str_replace(array('*', '?'), array('%', '_'), $rule)))->execute(array(), Doctrine::HYDRATE_ARRAY);
+        }
       }
     }
     $this->slow = Doctrine::getTable('SpeedLog')->createQuery('sl')->select('sl.request as request, avg(sl.elapsed) as a, count(sl.id) as c')->where('sl.created_at >= NOW() - INTERVAL 1 DAY')->groupBy('sl.request')->orderBy('a desc')->limit(50)->execute(array(), Doctrine::HYDRATE_ARRAY);
+    $this->form = $form;
   }
   
   public function executeCsv(sfWebRequest $request)
