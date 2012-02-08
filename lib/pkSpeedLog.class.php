@@ -15,6 +15,7 @@ class pkSpeedLog
     $speedLog->created_at = aDate::mysql($start);
     $speedLog->elapsed = $elapsed;
     $speedLog->request = $_SERVER['REQUEST_URI'];
+    $speedLog->memory = memory_get_peak_usage();
     $speedLog->save();
   }
 }

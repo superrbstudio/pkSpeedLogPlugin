@@ -1,3 +1,4 @@
+<p><?php echo link_to('Memory', 'speedLog/maxMemory') ?> | Speed</p>
 <h3>Page Speed Measurements</h3>
 <p>
   All times in seconds

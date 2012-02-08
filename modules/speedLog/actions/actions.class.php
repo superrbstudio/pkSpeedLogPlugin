@@ -2,6 +2,11 @@
 
 class speedLogActions extends sfActions
 {
+  public function executeMaxMemory(sfWebRequest $request)
+  {
+    $this->results = Doctrine::getTable('SpeedLog')->createQuery('sl')->where('sl.created_at >= NOW() - INTERVAL 1 DAY')->groupBy('sl.request')->orderBy('sl.memory DESC')->limit(100)->fetchArray();
+  } 
+
   public function executeAverages(sfWebRequest $request)
   {
     $fromDate = null;

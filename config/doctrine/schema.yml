@@ -12,6 +12,8 @@ SpeedLog:
     elapsed:
       # Seconds
       type: float
+    memory:
+      type: integer
 
 SpeedMonitor:
   columns:
